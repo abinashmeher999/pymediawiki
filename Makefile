@@ -1,7 +1,7 @@
 TARGET:
 	@if [ ! -d "venv" ]; then \
 		printf "\033[1;31mVirtual environment not intialized, initializing...\033[0m\n"; \
-		sudo pip install virtualenv; \
+		sudo -E pip install virtualenv; \
 		virtualenv -p /usr/bin/python3 venv; \
 	else echo "installed!"; \
 	fi
