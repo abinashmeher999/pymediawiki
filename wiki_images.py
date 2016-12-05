@@ -10,7 +10,7 @@ payload = {
     'prop': 'images',
     'pageids': None,
     'format': 'json',
-    'imlimit': '5',
+    'imlimit': 'max',
     'imcontinue': None,
     'imdir': 'ascending'
 }
@@ -24,17 +24,18 @@ def get_images(*pageids):
     image_names = {}
     payload['pageids'] = '|'.join(str(x) for x in list(pageids))
     res = requests.get(base_url, params=payload).json()
-    for key, pages in res['query']['pages'].items():
-        if 'images' not in pages:
+    for pageid, page_content in res['query']['pages'].items():
+        if 'images' not in page_content:
             continue
-        image_names[key] = [__strip_file(images['title']) for images in pages['images']]
+        image_names[pageid] = [__strip_file(image['title']) for image in page_content['images']]
     while 'continue' in res:
         payload['imcontinue'] = res['continue']['imcontinue']
         res = requests.get(base_url, params=payload).json()
-        for key, pages in res['query']['pages'].items():
-            if 'images' not in pages:
+        for pageid, page_content in res['query']['pages'].items():
+            if 'images' not in page_content:
                 continue
-            image_names[key] = image_names.get(key, []) + [__strip_file(images['title']) for images in pages['images']]
+            image_names[pageid] = image_names.get(pageid, []) + [__strip_file(image['title']) for image in
+                                                                 page_content['images']]
     payload['imcontinue'] = None
     payload['pageids'] = None
     return image_names
