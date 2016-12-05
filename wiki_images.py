@@ -1,4 +1,4 @@
-# Get the list of logged-in contributors and the count of anonymous contributors to a page
+# Get the list of images for a list of pages
 import re
 from pprint import pprint
 
