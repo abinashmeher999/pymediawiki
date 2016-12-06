@@ -14,7 +14,7 @@ payload = {
     'lhcontinue': None
 }
 
-
+# TODO: Return title and page ids both
 def get_linkshere(*pageids):
     linkshere = {}
     payload['pageids'] = '|'.join(str(x) for x in list(pageids))
