@@ -22,14 +22,14 @@ def get_linkshere(*pageids):
     for pageid, page_content in res['query']['pages'].items():
         if 'linkshere' not in page_content:
             continue
-        linkshere[pageid] = linkshere.get(pageid, []) + [x['pageid'] for x in page_content['linkshere']]
+        linkshere[pageid] = linkshere.get(pageid, []) + [link['pageid'] for link in page_content['linkshere']]
     while 'continue' in res:
         payload['lhcontinue'] = res['continue']['lhcontinue']
         res = requests.get(base_url, params=payload).json()
         for pageid, page_content in res['query']['pages'].items():
             if 'linkshere' not in page_content:
                 continue
-            linkshere[pageid] = linkshere.get(pageid, []) + [x['pageid'] for x in page_content['linkshere']]
+            linkshere[pageid] = linkshere.get(pageid, []) + [link['pageid'] for link in page_content['linkshere']]
     payload['lhcontinue'] = None
     payload['pageids'] = None
     return linkshere
