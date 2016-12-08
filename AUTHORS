@@ -4,4 +4,6 @@ can generate this file by:
 git log --reverse --format="%aN <%aE>" | awk ' !x[$0]++'
 
 Abinash Meher <abinashdakshana999@gmail.com>
-Ayushya Anand <ayushm.kgp@gmail.com>
+Dibya Jyoti Roy <djr-jsr@users.noreply.github.com>
+djr-jsr <djr.kgp@gmail.com>
+ayuhsya <ayushm.kgp@gmail.com>
