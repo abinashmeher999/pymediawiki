@@ -1,6 +1,7 @@
 import requests
 from pprint import pprint
 import re
+import sys
 
 
 class WikiPage:
@@ -79,6 +80,8 @@ class WikiPage:
             self.payload['titles'] = '|'.join(str(ID) for ID in list(kwparams['titles']))
         elif 'revids' in kwparams:
             self.payload['revids'] = '|'.join(str(ID) for ID in list(kwparams['revids']))
+        else:
+            raise KeyError("No valid arguments passed!")
 
 
 def _strip_prop(text, prop):
@@ -102,7 +105,13 @@ def _append_results(currlist, newlist, prop, strip_chars):
 
 if __name__ == "__main__":
     titles = ['pantera', 'opeth']
-    wk = WikiPage(titles=titles)
+
+    try:
+        wk = WikiPage(titles=titles)
+    except KeyError as error:
+        print (error.args)
+        sys.exit("Exited!")
+
     pprint(wk.get_categories())
     #pprint(wk.get_images())
     #pprint(wk.get_linkshere())
