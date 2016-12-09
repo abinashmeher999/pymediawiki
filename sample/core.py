@@ -4,20 +4,18 @@ import re
 
 
 class WikiPage:
-    def __init__(self, *pageid):
+    def __init__(self, **reference_to_pages):
         self.base_url = "https://en.wikipedia.org/w/api.php"
 
         self.payload = {
             'action': 'query',
-            'pageids': '|'.join(str(ID) for ID in list(pageid)),
             'format': 'json',
         }
 
+        self._parse_kwargs(**reference_to_pages)
+
     # Method to fetch categories
     def get_categories(self, get_hidden=False):
-        if self.payload['pageids'] is None:
-            return []
-
         prop = 'categories'
         self.payload['clshow'] = 'hidden' if get_hidden else '!hidden'
         self.payload['prop'] = prop
@@ -37,9 +35,6 @@ class WikiPage:
 
     # Method to fetch images
     def get_images(self, imlimit='max',imdir='ascending'):
-        if self.payload['pageids'] is None:
-            return []
-
         prop = 'images'
         self.payload['prop'] = prop,
         self.payload['imlimit'] = imlimit,
@@ -59,9 +54,6 @@ class WikiPage:
 
     # Method to fetch linkshere
     def get_linkshere(self, lhprop="pageid|title|redirect", lhlimit="max"):
-        if self.payload['pageids'] is None:
-            return []
-
         prop = 'linkshere'
         self.payload['prop'] = prop
         self.payload['lhprop'] = lhprop
@@ -79,6 +71,14 @@ class WikiPage:
         self.payload['lhcontinue'] = None
         self.payload['prop'] = None
         return lh_list
+
+    def _parse_kwargs(self, **kwparams):
+        if 'pageids' in kwparams:
+            self.payload['pageids'] = kwparams['pageids']
+        elif 'titles' in kwparams:
+            self.payload['titles'] = kwparams['titles']
+        elif 'revids' in kwparams:
+            self.payload['revids'] = kwparams['revids']
 
 
 def _strip_prop(text, prop):
@@ -101,8 +101,7 @@ def _append_results(currlist, newlist, prop, strip_chars):
         currlist[key] += ret[key]
 
 if __name__ == "__main__":
-
-    wk = WikiPage('843158','20715044')
+    wk = WikiPage(titles='pantera')
     pprint(wk.get_categories())
     pprint(wk.get_images())
     pprint(wk.get_linkshere())
