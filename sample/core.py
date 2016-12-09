@@ -81,7 +81,7 @@ class WikiPage:
         elif 'revids' in kwparams:
             self.payload['revids'] = '|'.join(str(ID) for ID in list(kwparams['revids']))
         else:
-            raise KeyError("No valid arguments passed!")
+            raise ValueError("No valid arguments passed!")
 
 
 def _strip_prop(text, prop):
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     try:
         wk = WikiPage(titles=titles)
-    except KeyError as error:
+    except ValueError as error:
         print (error.args)
         sys.exit("Exited!")
 
