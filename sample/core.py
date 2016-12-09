@@ -35,7 +35,7 @@ class WikiPage:
 
 
     # Method to fetch images
-    def get_images(self, imlimit='max',imdir='ascending'):
+    def get_images(self, imlimit='max', imdir='ascending'):
         prop = 'images'
         self.payload['prop'] = prop,
         self.payload['imlimit'] = imlimit,
@@ -113,5 +113,5 @@ if __name__ == "__main__":
         sys.exit("Exited!")
 
     pprint(wk.get_categories())
-    #pprint(wk.get_images())
-    #pprint(wk.get_linkshere())
+    pprint(wk.get_images())
+    pprint(wk.get_linkshere())
