@@ -74,11 +74,11 @@ class WikiPage:
 
     def _parse_kwargs(self, **kwparams):
         if 'pageids' in kwparams:
-            self.payload['pageids'] = kwparams['pageids']
+            self.payload['pageids'] = '|'.join(str(ID) for ID in list(kwparams['pageids']))
         elif 'titles' in kwparams:
-            self.payload['titles'] = kwparams['titles']
+            self.payload['titles'] = '|'.join(str(ID) for ID in list(kwparams['titles']))
         elif 'revids' in kwparams:
-            self.payload['revids'] = kwparams['revids']
+            self.payload['revids'] = '|'.join(str(ID) for ID in list(kwparams['revids']))
 
 
 def _strip_prop(text, prop):
@@ -101,7 +101,8 @@ def _append_results(currlist, newlist, prop, strip_chars):
         currlist[key] += ret[key]
 
 if __name__ == "__main__":
-    wk = WikiPage(titles='pantera')
+    titles = ['pantera', 'opeth']
+    wk = WikiPage(titles=titles)
     pprint(wk.get_categories())
-    pprint(wk.get_images())
-    pprint(wk.get_linkshere())
+    #pprint(wk.get_images())
+    #pprint(wk.get_linkshere())
