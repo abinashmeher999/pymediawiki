@@ -1,3 +1,4 @@
+sudo: required
 language: python3
 python:
   - "3.2"
@@ -7,7 +8,11 @@ python:
   - "3.5-dev" # 3.5 development branch
   - "3.6-dev" # 3.6 development branch
   - "nightly" # currently points to 3.7-dev
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install python3
+  
 # command to install dependencies
 install: " sudo pip install -r requirements.txt"
 # command to run tests
-script: core.py
+script: sample/core.py
