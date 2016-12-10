@@ -10,9 +10,12 @@ python:
   - "nightly" # currently points to 3.7-dev
 before_install:
   - sudo apt-get update
-  - sudo apt-get install python3
-  
+  - sudo apt-get -y install python3-pip python-dev
+  - sudo pip3 install -U setuptools
+  - sudo pip3 install -U virtualenvwrapper
+  - python3 -V
+  - pip3 -V
 # command to install dependencies
-install: " sudo pip install -r requirements.txt"
+install: "sudo pip3 install -r requirements.txt"
 # command to run tests
-script: sample/core.py
+script: sudo python sample/core.py
