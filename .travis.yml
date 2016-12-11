@@ -3,6 +3,11 @@ python:
   - 3.3
   - 3.4
   - 3.5
+  - "nightly" # currently points to 3.7-dev
+
+matrix:
+  allow_failures:
+    - python: "nightly"
 
 # command to install dependencies
 install:
