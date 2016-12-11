@@ -4,9 +4,11 @@ import re
 import sys
 import json
 
+with open('metadata.json') as data_file:
+    data = json.load(data_file)
 
 class WikiPage:
-    def __init__(self, data, **reference_to_pages):
+    def __init__(self, **reference_to_pages):
         self.base_url = "https://en.wikipedia.org/w/api.php"
 
         self.payload = {
@@ -109,10 +111,9 @@ def _append_results(currlist, newlist, prop, strip_chars):
 
 if __name__ == "__main__":
     titles = ['pantera', 'opeth']
-    with open('metadata.json') as data_file:
-        data = json.load(data_file)
+
     try:
-        wk = WikiPage(data, titles=titles)
+        wk = WikiPage(titles=titles)
     except ValueError as error:
         print (error.args)
         sys.exit("Exited!")
