@@ -12,6 +12,9 @@ class WikiPage:
             'action': 'query',
             'format': 'json',
         }
+        self.headers = {
+                'User-Agent': 'Wikipedia-Category ( https://github.com/abinashmeher999/wikipedia-category) '
+        }
 
         self._parse_kwargs(**reference_to_pages)
 
@@ -21,12 +24,12 @@ class WikiPage:
         self.payload['clshow'] = 'hidden' if get_hidden else '!hidden'
         self.payload['prop'] = prop
 
-        res = requests.get(self.base_url, params=self.payload).json()
+        res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
         cat_list = _strip_JSON(res, prop, 'Category')
 
         while 'continue' in res:
             self.payload['clcontinue'] = res['continue']['clcontinue']
-            res = requests.get(self.base_url, params=self.payload).json()
+            res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
             _append_results(cat_list, res, prop, 'Category')
 
         self.payload['clcontinue'] = None
@@ -41,12 +44,12 @@ class WikiPage:
         self.payload['imlimit'] = imlimit,
         self.payload['imdir'] = imdir
 
-        res = requests.get(self.base_url, params=self.payload).json()
+        res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
 
         img_list = _strip_JSON(res, prop, 'File')
         while 'continue' in res:
             self.payload['imcontinue'] = res['continue']['imcontinue']
-            res = requests.get(self.base_url, params=self.payload).json()
+            res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
             _append_results(img_list, res, prop, 'File')
 
         self.payload['imcontinue'] = None
@@ -61,12 +64,12 @@ class WikiPage:
         self.payload['lhlimit'] = lhlimit
 
         lh_list = {}
-        res = requests.get(self.base_url, params=self.payload).json()
+        res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
 
         lh_list = _strip_JSON(res, prop, '_nothing-to-strip_')
         while 'continue' in res:
             self.payload['lhcontinue'] = res['continue']['lhcontinue']
-            res = requests.get(self.base_url, params=self.payload).json()
+            res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
             _append_results(lh_list, res, prop, '_nothing-to-strip_')
 
         self.payload['lhcontinue'] = None
