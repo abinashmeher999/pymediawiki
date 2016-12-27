@@ -28,12 +28,12 @@ class WikiPage:
         self.payload['prop'] = prop
 
         res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-        cat_list = _strip_JSON(res, prop, 'Category')
+        cat_list = _strip_JSON(res, prop, 'Category', 'title')
 
         while 'continue' in res:
             self.payload['clcontinue'] = res['continue']['clcontinue']
             res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-            _append_results(cat_list, res, prop, 'Category')
+            _append_results(cat_list, res, prop, 'Category', 'title')
 
         self.payload['clcontinue'] = None
         self.payload['prop'] = None
@@ -49,11 +49,11 @@ class WikiPage:
 
         res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
 
-        img_list = _strip_JSON(res, prop, 'File')
+        img_list = _strip_JSON(res, prop, 'File','title')
         while 'continue' in res:
             self.payload['imcontinue'] = res['continue']['imcontinue']
             res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-            _append_results(img_list, res, prop, 'File')
+            _append_results(img_list, res, prop, 'File', 'title')
 
         self.payload['imcontinue'] = None
         self.payload['prop'] = None
@@ -69,15 +69,77 @@ class WikiPage:
         lh_list = {}
         res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
 
-        lh_list = _strip_JSON(res, prop, '_nothing-to-strip_')
+        lh_list = _strip_JSON(res, prop, '_nothing-to-strip_','title')
         while 'continue' in res:
             self.payload['lhcontinue'] = res['continue']['lhcontinue']
             res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
-            _append_results(lh_list, res, prop, '_nothing-to-strip_')
+            _append_results(lh_list, res, prop, '_nothing-to-strip_', 'title')
 
         self.payload['lhcontinue'] = None
         self.payload['prop'] = None
         return lh_list
+
+    # Method to fetch contributors
+
+    def get_contributors(self, pclimit="max"):
+        prop = 'contributors'
+        self.payload['prop'] = prop
+        self.payload['pclimit'] = pclimit
+
+        pc_list = {}
+        res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
+
+        pc_list = _strip_JSON(res, prop, '_nothing-to-strip_', 'name')
+        while 'continue' in res:
+            self.payload['pccontinue'] = res['continue']['pccontinue']
+            res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
+            _append_results(pc_list, res, prop, '_nothing-to-strip_', 'name')
+
+        self.payload['pccontinue'] = None
+        self.payload['prop'] = None
+        return pc_list
+
+    # Method to fetch links
+
+    def get_links(self,pllimit="max", pldir="ascending"):
+        prop = 'links'
+        self.payload['prop'] = prop
+        self.payload['pllimit'] = pllimit
+        self.payload['pldir'] = pldir
+        pl_list = {}
+        res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
+
+        pl_list = _strip_JSON(res, prop, '_nothing-to-strip_', 'title')
+        while 'continue' in res:
+            self.payload['plcontinue'] = res['continue']['plcontinue']
+            res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
+            _append_results(pl_list, res, prop, '_nothing-to-strip_', 'title')
+
+        self.payload['plcontinue'] = None
+        self.payload['prop'] = None
+        return pl_list
+
+
+    # Method to fetch redirects
+
+    def get_redirects(self,rdlimit="max", rdprop="pageid|title"):
+        prop = 'redirects'
+        self.payload['prop'] = prop
+        self.payload['rdlimit'] = rdlimit
+        self.payload['rdprop'] = rdprop
+        rd_list = {}
+        res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
+
+        rd_list = _strip_JSON(res, prop, '_nothing-to-strip_', 'title')
+        while 'continue' in res:
+            self.payload['rdcontinue'] = res['continue']['rdcontinue']
+            res = requests.get(self.base_url, params=self.payload,headers=self.headers).json()
+            _append_results(rd_list, res, prop, '_nothing-to-strip_', 'title')
+
+        self.payload['rdcontinue'] = None
+        self.payload['prop'] = None
+        return rd_list
+    
 
     def _parse_kwargs(self, **kwparams):
         if 'pageids' in kwparams:
@@ -93,17 +155,17 @@ class WikiPage:
 def _strip_prop(text, prop):
     return re.sub(prop+':', "", text, count=1)
 
-def _strip_JSON(res, prop, strip_chars):
+def _strip_JSON(res, prop, strip_chars, entry_prop):
     ret = {}
     for page_id, page_content in res['query']['pages'].items():
         if prop not in page_content:
             continue
-        ret[page_id] = [_strip_prop(entry['title'], strip_chars) for entry in page_content[prop]]
+        ret[page_id] = [_strip_prop(entry[entry_prop], strip_chars) for entry in page_content[prop]]
     return ret
 
-def _append_results(currlist, newlist, prop, strip_chars):
+def _append_results(currlist, newlist, prop, strip_chars, entry_prop):
     ret = {}
-    ret = _strip_JSON(newlist, prop, strip_chars)
+    ret = _strip_JSON(newlist, prop, strip_chars, entry_prop)
     for key in ret:
         if key not in currlist:
             currlist[key] = []
@@ -121,3 +183,6 @@ if __name__ == "__main__":
     pprint(wk.get_categories())
     pprint(wk.get_images())
     pprint(wk.get_linkshere())
+    pprint(wk.get_contributors())
+    pprint(wk.get_links())
+    pprint(wk.get_redirects())
