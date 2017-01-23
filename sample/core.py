@@ -114,7 +114,7 @@ class WikiPage:
             self.payload['plcontinue'] = res['continue']['plcontinue']
             res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
             _append_results(pl_list, res, prop, '_nothing-to-strip_', 'title')
- 
+
         self.payload.pop('plcontinue', None)
         self.payload['prop'] = None
         return pl_list
@@ -139,7 +139,64 @@ class WikiPage:
         self.payload.pop('rdcontinue', None)
         self.payload['prop'] = None
         return rd_list
-    
+
+
+    def get_categoryinfo(self):
+        prop = 'categoryinfo'
+        self.payload['prop'] = prop
+
+        res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
+
+        ci_list = {}
+        for page_id, page_content in res['query']['pages'].items():
+            if prop not in page_content:
+                continue
+            ci_list[page_id] = page_content[prop]
+
+        while 'continue' in res:
+            self.payload['cicontinue'] = res['continue']['cicontinue']
+            res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
+            for page_id, page_content in res['query']['pages'].items():
+                if prop not in page_content:
+                    continue
+                if page_id not in ci_list:
+                    ci_list[page_id] = []
+                ci_list[page_id] = page_content[prop]
+
+        self.payload.pop('cicontinue', None)
+        self.payload['prop'] = None
+        return ci_list
+
+    def get_duplicatefiles(self, dflimit="max", dfdir="ascending", dflocalonly=None):
+        prop = 'duplicatefiles'
+        self.payload['prop'] = prop
+        self.payload['dflimit'] = dflimit
+        self.payload['dfdir'] = dfdir
+        if dflocalonly is not None:
+            self.payload['dflocalonly'] = True
+
+        res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
+
+        df_list = {}
+        for page_id, page_content in res['query']['pages'].items():
+            if prop not in page_content:
+                continue
+            df_list[page_id] = page_content[prop]
+
+        while 'continue' in res:
+            self.payload['dfcontinue'] = res['continue']['cicontinue']
+            res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
+            for page_id, page_content in res['query']['pages'].items():
+                if prop not in page_content:
+                    continue
+                if page_id not in df_list:
+                    df_list[page_id] = []
+                df_list[page_id] += page_content[prop]
+
+        self.payload.pop('dfcontinue', None)
+        self.payload['prop'] = None
+        return df_list
+
 
     def _parse_kwargs(self, **kwparams):
         if 'pageids' in kwparams:
@@ -172,7 +229,7 @@ def _append_results(currlist, newlist, prop, strip_chars, entry_prop):
         currlist[key] += ret[key]
 
 if __name__ == "__main__":
-    titles = ['pantera', 'opeth']
+    titles = ['Category:Foo']
 
     try:
         wk = WikiPage(titles=titles)
@@ -180,7 +237,7 @@ if __name__ == "__main__":
         print (error.args)
         sys.exit("Exited!")
 
-    print("get_categories:")
+    '''print("get_categories:")
     pprint(wk.get_categories())
     print("get_images:")
     pprint(wk.get_images())
@@ -191,4 +248,6 @@ if __name__ == "__main__":
     print("get_links:")
     pprint(wk.get_links())
     print("get_redirects:")
-    pprint(wk.get_redirects())
+    pprint(wk.get_redirects())'''
+
+    pprint(wk.get_categoryinfo())
