@@ -36,6 +36,7 @@ class WikiPage:
             _append_results(cat_list, res, prop, 'Category', 'title')
 
         self.payload.pop('clcontinue', None)
+        self.payload.pop('clshow', None)
         self.payload['prop'] = None
         return cat_list
 
@@ -56,6 +57,8 @@ class WikiPage:
             _append_results(img_list, res, prop, 'File', 'title')
 
         self.payload.pop('imcontinue', None)
+        self.payload.pop('imlimit', None)
+        self.payload.pop('imdir', None)
         self.payload['prop'] = None
         return img_list
 
@@ -76,6 +79,8 @@ class WikiPage:
             _append_results(lh_list, res, prop, '_nothing-to-strip_', 'title')
 
         self.payload.pop('lhcontinue', None)
+        self.payload.pop('lhprop', None)
+        self.payload.pop('lhlimit', None)
         self.payload['prop'] = None
         return lh_list
 
@@ -96,6 +101,7 @@ class WikiPage:
             _append_results(pc_list, res, prop, '_nothing-to-strip_', 'name')
 
         self.payload.pop('pccontinue', None)
+        self.payload.pop('pclimit', None)
         self.payload['prop'] = None
         return pc_list
 
@@ -116,6 +122,8 @@ class WikiPage:
             _append_results(pl_list, res, prop, '_nothing-to-strip_', 'title')
 
         self.payload.pop('plcontinue', None)
+        self.payload.pop('pllimit', None)
+        self.payload.pop('pldir', None)
         self.payload['prop'] = None
         return pl_list
 
@@ -137,6 +145,8 @@ class WikiPage:
             _append_results(rd_list, res, prop, '_nothing-to-strip_', 'title')
 
         self.payload.pop('rdcontinue', None)
+        self.payload.pop('rdlimit', None)
+        self.payload.pop('rdprop', None)
         self.payload['prop'] = None
         return rd_list
 
@@ -161,18 +171,18 @@ class WikiPage:
                     continue
                 if page_id not in ci_list:
                     ci_list[page_id] = []
-                ci_list[page_id] = page_content[prop]
+                ci_list[page_id] += page_content[prop]
 
         self.payload.pop('cicontinue', None)
         self.payload['prop'] = None
         return ci_list
 
-    def get_duplicatefiles(self, dflimit="max", dfdir="ascending", dflocalonly=None):
+    def get_duplicatefiles(self, dflimit="max", dfdir="ascending", dflocalonly=False):
         prop = 'duplicatefiles'
         self.payload['prop'] = prop
         self.payload['dflimit'] = dflimit
         self.payload['dfdir'] = dfdir
-        if dflocalonly is not None:
+        if dflocalonly==True:
             self.payload['dflocalonly'] = True
 
         res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
@@ -194,6 +204,9 @@ class WikiPage:
                 df_list[page_id] += page_content[prop]
 
         self.payload.pop('dfcontinue', None)
+        self.payload.pop('dflimit', None)
+        self.payload.pop('dfdir', None)
+        self.payload.pop('dflocalonly', None)
         self.payload['prop'] = None
         return df_list
 
@@ -229,7 +242,7 @@ def _append_results(currlist, newlist, prop, strip_chars, entry_prop):
         currlist[key] += ret[key]
 
 if __name__ == "__main__":
-    titles = ['Category:Foo']
+    titles = ['opeth', 'File:Albert Einstein Head.jpg', 'Category:Foo']
 
     try:
         wk = WikiPage(titles=titles)
@@ -237,7 +250,7 @@ if __name__ == "__main__":
         print (error.args)
         sys.exit("Exited!")
 
-    '''print("get_categories:")
+    print("get_categories:")
     pprint(wk.get_categories())
     print("get_images:")
     pprint(wk.get_images())
@@ -248,6 +261,8 @@ if __name__ == "__main__":
     print("get_links:")
     pprint(wk.get_links())
     print("get_redirects:")
-    pprint(wk.get_redirects())'''
-
+    pprint(wk.get_redirects())
+    print("get_categoryinfo: ")
     pprint(wk.get_categoryinfo())
+    print("get_duplicatefiles: ")
+    pprint(wk.get_duplicatefiles())
