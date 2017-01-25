@@ -242,7 +242,7 @@ def _append_results(currlist, newlist, prop, strip_chars, entry_prop):
         currlist[key] += ret[key]
 
 if __name__ == "__main__":
-    titles = ['opeth', 'File:Albert Einstein Head.jpg', 'Category:Foo']
+    titles = ['opeth', 'File:Albert Einstein Head.jpg', 'Category:Infobox templates']
 
     try:
         wk = WikiPage(titles=titles)
@@ -264,5 +264,3 @@ if __name__ == "__main__":
     pprint(wk.get_redirects())
     print("get_categoryinfo: ")
     pprint(wk.get_categoryinfo())
-    print("get_duplicatefiles: ")
-    pprint(wk.get_duplicatefiles())
