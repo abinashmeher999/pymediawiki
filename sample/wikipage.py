@@ -177,40 +177,6 @@ class WikiPage:
         self.payload['prop'] = None
         return ci_list
 
-    def get_duplicatefiles(self, dflimit="max", dfdir="ascending", dflocalonly=False):
-        prop = 'duplicatefiles'
-        self.payload['prop'] = prop
-        self.payload['dflimit'] = dflimit
-        self.payload['dfdir'] = dfdir
-        if dflocalonly==True:
-            self.payload['dflocalonly'] = True
-
-        res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-
-        df_list = {}
-        for page_id, page_content in res['query']['pages'].items():
-            if prop not in page_content:
-                continue
-            df_list[page_id] = page_content[prop]
-
-        while 'continue' in res:
-            self.payload['dfcontinue'] = res['continue']['cicontinue']
-            res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-            for page_id, page_content in res['query']['pages'].items():
-                if prop not in page_content:
-                    continue
-                if page_id not in df_list:
-                    df_list[page_id] = []
-                df_list[page_id] += page_content[prop]
-
-        self.payload.pop('dfcontinue', None)
-        self.payload.pop('dflimit', None)
-        self.payload.pop('dfdir', None)
-        self.payload.pop('dflocalonly', None)
-        self.payload['prop'] = None
-        return df_list
-
-
     def _parse_kwargs(self, **kwparams):
         if 'pageids' in kwparams:
             self.payload['pageids'] = '|'.join(str(ID) for ID in list(kwparams['pageids']))

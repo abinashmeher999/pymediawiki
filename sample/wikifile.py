@@ -21,12 +21,8 @@ class WikiFile:
         self._parse_kwargs(**reference_to_pages)
 
     def _parse_kwargs(self, **kwparams):
-        if 'pageids' in kwparams:
-            self.payload['pageids'] = '|'.join(str(ID) for ID in list(kwparams['pageids']))
-        elif 'titles' in kwparams:
+        if 'titles' in kwparams:
             self.payload['titles'] = '|'.join(str(ID) for ID in list(kwparams['titles']))
-        elif 'revids' in kwparams:
-            self.payload['revids'] = '|'.join(str(ID) for ID in list(kwparams['revids']))
         else:
             raise ValueError("No valid arguments passed!")
 
@@ -35,7 +31,7 @@ class WikiFile:
         self.payload['prop'] = prop
         self.payload['dflimit'] = dflimit
         self.payload['dfdir'] = dfdir
-        if dflocalonly==True:
+        if dflocalonly:
             self.payload['dflocalonly'] = True
 
         res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
@@ -44,17 +40,17 @@ class WikiFile:
         for page_id, page_content in res['query']['pages'].items():
             if prop not in page_content:
                 continue
-            df_list[page_id] = page_content[prop]
+            df_list[page_content['title']] = page_content[prop]
 
         while 'continue' in res:
-            self.payload['dfcontinue'] = res['continue']['cicontinue']
+            self.payload['dfcontinue'] = res['continue']['dfcontinue']
             res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
             for page_id, page_content in res['query']['pages'].items():
                 if prop not in page_content:
                     continue
-                if page_id not in df_list:
-                    df_list[page_id] = []
-                df_list[page_id] += page_content[prop]
+                if page_content['title'] not in df_list:
+                    df_list[page_content['title']] = []
+                df_list[page_content['title']] += page_content[prop]
 
         self.payload.pop('dfcontinue', None)
         self.payload.pop('dflimit', None)
@@ -64,7 +60,7 @@ class WikiFile:
         return df_list
 
 if __name__ == "__main__":
-    titles = ['opeth', 'File:Albert Einstein Head.jpg', 'Category:Foo']
+    titles = ['Image:1995.jpg', 'File:Albert Einstein Head.jpg', 'Image:Bombers.ogg']
 
     try:
         wk = WikiFile(titles=titles)
