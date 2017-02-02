@@ -1,0 +1,13 @@
+{
+  "prefixes": {
+    "images": "im",
+    "linkshere": "lh",
+    "categories": "cl",
+    "contributors": "pc",
+    "links": "pl",
+    "redirects": "rd",
+    "categoryinfo": "ci",
+    "duplicatefiles": "df",
+    "fileusage": "fu"
+  }
+}

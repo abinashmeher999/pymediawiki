@@ -1,6 +1,6 @@
-import requests
 from pprint import pprint
 import json
+import helpers
 
 with open('metadata.json') as data_file:
     data = json.load(data_file)
@@ -34,23 +34,7 @@ class WikiFile:
         if dflocalonly:
             self.payload['dflocalonly'] = True
 
-        res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-
-        df_list = {}
-        for page_id, page_content in res['query']['pages'].items():
-            if prop not in page_content:
-                continue
-            df_list[page_content['title']] = page_content[prop]
-
-        while 'continue' in res:
-            self.payload['dfcontinue'] = res['continue']['dfcontinue']
-            res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-            for page_id, page_content in res['query']['pages'].items():
-                if prop not in page_content:
-                    continue
-                if page_content['title'] not in df_list:
-                    df_list[page_content['title']] = []
-                df_list[page_content['title']] += page_content[prop]
+        df_list = helpers._fetch_dict_results(self.base_url, self.payload, self.headers, prop)
 
         self.payload.pop('dfcontinue', None)
         self.payload.pop('dflimit', None)
@@ -67,23 +51,7 @@ class WikiFile:
         self.payload['fushow'] = fushow
         self.payload['funamespace'] = funamespace
 
-        res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-
-        fu_list = {}
-        for page_id, page_content in res['query']['pages'].items():
-            if prop not in page_content:
-                continue
-            fu_list[page_content['title']] = page_content[prop]
-
-        while 'continue' in res:
-            self.payload['fucontinue'] = res['continue']['fucontinue']
-            res = requests.get(self.base_url, params=self.payload, headers=self.headers).json()
-            for page_id, page_content in res['query']['pages'].items():
-                if prop not in page_content:
-                    continue
-                if page_content['title'] not in fu_list:
-                    fu_list[page_content['title']] = []
-                fu_list[page_content['title']] += page_content[prop]
+        fu_list = helpers._fetch_dict_results(self.base_url, self.payload, self.headers, prop)
 
         self.payload.pop('fuprop', None)
         self.payload.pop('fulimit', None)
@@ -94,7 +62,7 @@ class WikiFile:
         return fu_list
 
 if __name__ == "__main__":
-    titles = ['File:Example.jpg', 'File:Albert Einstein Head.jpg']
+    titles = ['File:Albert Einstein Head.jpg']
 
     try:
         wk = WikiFile(titles=titles)
